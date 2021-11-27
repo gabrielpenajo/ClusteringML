@@ -9,10 +9,11 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from sklearn.cluster import KMeans
 from sklearn.cluster import DBSCAN
-from sklearn.cluster import Ward
 from sklearn import preprocessing
 from collections import defaultdict
+from scipy.cluster.hierarchy import dendrogram
 from sklearn.metrics import silhouette_samples, silhouette_score
+from sklearn.cluster import AgglomerativeClustering
 
 # dataset src:
 # https://archive.ics.uci.edu/ml/datasets/UrbanGB%2C+urban+road+accidents+coordinates+labelled+by+the+urban+center
@@ -79,6 +80,32 @@ def silhouette(X, y, n_clusters):
     plt.show()
 
 
+
+# Função exemplo do scikit lean para plotagem de dendrogramas
+def plot_dendrogram(model, **kwargs):
+    # Create linkage matrix and then plot the dendrogram
+
+    # create the counts of samples under each node
+    counts = np.zeros(model.children_.shape[0])
+    n_samples = len(model.labels_)
+    for i, merge in enumerate(model.children_):
+        current_count = 0
+        for child_idx in merge:
+            if child_idx < n_samples:
+                current_count += 1  # leaf node
+            else:
+                current_count += counts[child_idx - n_samples]
+        counts[i] = current_count
+
+    linkage_matrix = np.column_stack(
+        [model.children_, model.distances_, counts]
+    ).astype(float)
+
+    # Plot the corresponding dendrogram
+    dendrogram(linkage_matrix, **kwargs)
+
+
+
 def preprocess(df):
     """
     Pré-processamento do DataFrame
@@ -139,6 +166,26 @@ def kmeans_exec(X, cluster_n=1):
 
     return y
 
+def ward_exec(X, cluster_n):
+    """
+    Execução do algoritmo Ward após escolha do número de clusters.
+
+    :param X: conjunto de dados.
+    :param cluster_n: número de agrupamentos.
+    :returns: y (o rótulo associado a cada instância)
+    """
+    clustering = AgglomerativeClustering(linkage="ward", n_clusters=cluster_n, compute_distances=True).fit(X)
+    y = clustering.labels_
+
+
+    # Plot do dendrograma usando a função exemplo do scikit learn
+    plot_dendrogram(clustering, truncate_mode="level", p=3)
+    plt.show()
+    
+    # Validação usando o score de silhueta
+    silhouette(X, y, cluster_n)
+    
+    return y
 
 def plot_clustering(X, y, cluster_n=1):
     """
@@ -177,5 +224,6 @@ if __name__ == '__main__':
     # Plotagem dos resultados do KMeans para k=6
     plot_clustering(X, y, cluster_n=k)
 
-    # clustering = DBSCAN(eps=3, min_samples=2).fit(df)
-    # print(clustering.labels_)
+    y = ward_exec(X, k)
+    # Plotagem dos resultados do Ward
+    plot_clustering(X, y, k) 
