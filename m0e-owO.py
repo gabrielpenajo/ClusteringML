@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from sklearn.cluster import KMeans
 from sklearn.cluster import DBSCAN
+from sklearn.cluster import Ward
 from sklearn import preprocessing
 from collections import defaultdict
 from sklearn.metrics import silhouette_samples, silhouette_score
@@ -17,19 +18,20 @@ from sklearn.metrics import silhouette_samples, silhouette_score
 # https://archive.ics.uci.edu/ml/datasets/UrbanGB%2C+urban+road+accidents+coordinates+labelled+by+the+urban+center
 
 
-def silhouette(X, y, kmeans, n_clusters):
+def silhouette(X, y, n_clusters):
     """
-    Plotagem do score de silhueta.
+    Calcula e 
+    plota os scores de silhueta.
 
     :param X: conjunto de dados.
     :param y: agrupamento obtido após execução de um Algoritmo de Agrupamento.
     :param kmeans: objeto da classe KMeans aplicado a um dataset X
     :param n_clusters: número de clusters para execução do KMeans
     """
-    fig, (ax1, ax2) = plt.subplots(1, 2)
+    fig, (ax1) = plt.subplots(1, 1)
     fig.set_size_inches(18, 7)
     ax1.set_xlim([-1, 1])
-    ax1.set_ylim([0, len(df) + (n_clusters + 1) * 10])
+    ax1.set_ylim([0, len(X) + (n_clusters + 1) * 10])
 
     silhouette_avg = silhouette_score(X, y)
     print(
@@ -51,13 +53,10 @@ def silhouette(X, y, kmeans, n_clusters):
         size_cluster_i = ith_cluster_silhouette_values.shape[0]
         y_upper = y_lower + size_cluster_i
 
-        color = cm.nipy_spectral(float(i) / n_clusters)
         ax1.fill_betweenx(
             np.arange(y_lower, y_upper),
             0,
             ith_cluster_silhouette_values,
-            facecolor=color,
-            edgecolor=color,
             alpha=0.7,
         )
 
@@ -75,39 +74,8 @@ def silhouette(X, y, kmeans, n_clusters):
     ax1.axvline(x=silhouette_avg, color="red", linestyle="--")
 
     ax1.set_yticks([])  # Clear the yaxis labels / ticks
-    ax1.set_xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
-    # 2nd Plot showing the actual clusters formed
-    colors = cm.nipy_spectral(y.astype(float) / n_clusters)
-    ax2.scatter(
-        df['longitude'], df['latitude'], marker=".", s=30, lw=0, alpha=0.7, c=colors, edgecolor="k"
-    )
+    ax1.set_xticks([-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
 
-    # Labeling the clusters
-    centers = kmeans.cluster_centers_
-    # Draw white circles at cluster centers
-    ax2.scatter(
-        centers[:, 0],
-        centers[:, 1],
-        marker="o",
-        c="white",
-        alpha=1,
-        s=200,
-        edgecolor="k",
-    )
-
-    for i, c in enumerate(centers):
-        ax2.scatter(c[0], c[1], marker="$%d$" % i, alpha=1, s=50, edgecolor="k")
-
-    ax2.set_title("The visualization of the clustered data.")
-    ax2.set_xlabel("Feature space for the 1st feature")
-    ax2.set_ylabel("Feature space for the 2nd feature")
-
-    plt.suptitle(
-        "Silhouette analysis for KMeans clustering on sample data with n_clusters = %d"
-        % n_clusters,
-        fontsize=14,
-        fontweight="bold",
-    )
     plt.show()
 
 
@@ -167,7 +135,7 @@ def kmeans_exec(X, cluster_n=1):
     y = kmeans.predict(X)
     
     # Validação usando o score de silhueta
-    silhouette(X, y, kmeans, cluster_n)
+    silhouette(X, y, cluster_n)
 
     return y
 
@@ -181,13 +149,13 @@ def plot_clustering(X, y, cluster_n=1):
     """
     grupos_x = defaultdict(list)
     grupos_y = defaultdict(list)
-
+    
     for j in range(len(X)):
         grupos_x[y[j]].append(X.loc[j]['longitude'])
         grupos_y[y[j]].append(X.loc[j]['latitude'])
 
     for i in range(cluster_n):
-        plt.scatter(grupos_x[i], grupos_y[i], s=5)
+        plt.scatter(grupos_x[i], grupos_y[i], s=5) 
     plt.show()
 
 
