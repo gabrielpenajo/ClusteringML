@@ -79,8 +79,6 @@ def silhouette(X, y, n_clusters):
 
     plt.show()
 
-
-
 # Função exemplo do scikit lean para plotagem de dendrogramas
 def plot_dendrogram(model, **kwargs):
     # Create linkage matrix and then plot the dendrogram
@@ -103,7 +101,6 @@ def plot_dendrogram(model, **kwargs):
 
     # Plot the corresponding dendrogram
     dendrogram(linkage_matrix, **kwargs)
-
 
 
 def preprocess(df):
@@ -179,8 +176,9 @@ def ward_exec(X, cluster_n):
 
 
     # Plot do dendrograma usando a função exemplo do scikit learn
-    plot_dendrogram(clustering, truncate_mode="level", p=3)
-    plt.show()
+    if pergunta("Deseja ver o Dendrograma gerado?"):
+        plot_dendrogram(clustering, truncate_mode="level", p=3)
+        plt.show()
     
     # Validação usando o score de silhueta
     silhouette(X, y, cluster_n)
@@ -206,6 +204,14 @@ def plot_clustering(X, y, cluster_n=1):
     plt.show()
 
 
+def pergunta(p):
+    valid_options = ['Y','N']
+    drop = input( p + ' (Y/N)\n')
+    while drop not in valid_options:
+        drop = input('Digite uma opcao valida: (Y/N)\n')
+    drop = True if drop == 'Y' else False
+    return drop
+
 # Função main, na qual o usuário faz as escolhas do programa.
 if __name__ == '__main__':
     # Leitura do arquivo csv pelo pandas e inserção das headers "longitude" e "latitude".
@@ -214,16 +220,34 @@ if __name__ == '__main__':
     
     # Conjunto de dados propriamente dito
     X = preprocess(df)
-    # Plotagem da Soma do Quadrado do Erro
-    kmeans_validation(X)
+    if pergunta("Deseja executar o método Kmeans?"):
+        if pergunta("Deseja ver o método do cotovelo?"):
+            # Plotagem da Soma do Quadrado do Erro
+            kmeans_validation(X)
 
-    # Número ideal de clusters após análise
-    k = 6
-    # Execução do KMeans
-    y = kmeans_exec(X, cluster_n=k)
-    # Plotagem dos resultados do KMeans para k=6
-    plot_clustering(X, y, cluster_n=k)
+        # Número ideal de clusters após análise
+        k = 6
+        # Execução do KMeans
+        y = kmeans_exec(X, cluster_n=k)
+        if pergunta("Deseja ver o plot do KMeans?"):
+            # Plotagem dos resultados do KMeans para k=6
+            plot_clustering(X, y, cluster_n=k)
 
-    y = ward_exec(X, k)
-    # Plotagem dos resultados do Ward
-    plot_clustering(X, y, k) 
+    if pergunta("Deseja executar o método Ward?"):
+        k = 6
+        y = ward_exec(X, k)
+        # Plotagem dos resultados do Ward
+        if pergunta("Deseja ver o plot do Ward?"):
+            plot_clustering(X, y, k) 
+
+
+
+
+
+
+# POR FAVOR NÃO ACESSE ISSO !!!↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+# 😲😲😥😨😨🤯😬😤😖😲😲😥😨😨🤯😬😤😖😲😲
+# ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+# →→→→→→https://www.youtube.com/watch?v=T59N3DPrvac
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# 😭😭😭😭😭😭😭😭😭😭😭😭😭😭😭😭😭😭😭😭
